@@ -32,6 +32,10 @@ export async function handler(event: APIGatewayProxyEventV2) {
         Name: "given_name",
         Value: data.name,
       },
+      {
+        Name: "custom:role",
+        Value: "STUDENT",
+      },
     ],
   });
 
