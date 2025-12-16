@@ -6,6 +6,8 @@ provider:
   runtime: nodejs22.x
   architecture: arm64
   region: us-east-1
+  environment:
+    COGNITO_CLIENT_ID: !Ref UserPoolClient
 
 package:
   individually: true
@@ -17,12 +19,12 @@ build:
     sourcemap: false
 
 functions:
-  hello:
-    handler: src/functions/hello.handler
+  signup:
+    handler: src/functions/auth/signup.handler
     events:
       - httpApi:
-          path: /
-          method: get
+          path: /auth/signup
+          method: POST
 
 resources:
   Resources:
