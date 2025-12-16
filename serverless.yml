@@ -8,6 +8,14 @@ provider:
   region: us-east-1
   environment:
     COGNITO_CLIENT_ID: !Ref UserPoolClient
+  httpApi:
+    authorizers:
+      CognitoAuthorizer:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: !GetAtt UserPool.ProviderURL
+        audience:
+          - !Ref UserPoolClient
 
 package:
   individually: true
@@ -37,6 +45,14 @@ functions:
       - httpApi:
           path: /auth/signin
           method: POST
+  createLesson:
+    handler: src/functions/lessons/createLesson.handler
+    events:
+      - httpApi:
+          path: /lessons
+          method: POST
+          authorizer:
+            name: CognitoAuthorizer
 
 resources:
   Resources:
