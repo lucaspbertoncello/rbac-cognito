@@ -25,6 +25,12 @@ functions:
       - httpApi:
           path: /auth/signup
           method: POST
+  confirmSignup:
+    handler: src/functions/auth/confirmSignup.handler
+    events:
+      - httpApi:
+          path: /auth/confirm-signup
+          method: POST
 
 resources:
   Resources:
