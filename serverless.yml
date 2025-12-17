@@ -8,6 +8,7 @@ provider:
   region: us-east-1
   environment:
     COGNITO_CLIENT_ID: !Ref UserPoolClient
+    COGNITO_POOL_ID: !Ref UserPool
   httpApi:
     authorizers:
       CognitoAuthorizer:
@@ -16,6 +17,14 @@ provider:
         issuerUrl: !GetAtt UserPool.ProviderURL
         audience:
           - !Ref UserPoolClient
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminGetUser
+            - cognito-idp:CreateGroup
+          Resource: !GetAtt UserPool.Arn
 
 package:
   individually: true
@@ -53,6 +62,14 @@ functions:
           method: POST
           authorizer:
             name: CognitoAuthorizer
+  createRole:
+    handler: src/functions/roles/createRole.handler
+    events:
+      - httpApi:
+          path: /roles
+          method: POST
+          authorizer:
+            name: CognitoAuthorizer
 
 resources:
   Resources:
@@ -85,3 +102,9 @@ resources:
         ExplicitAuthFlows:
           - ALLOW_USER_PASSWORD_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
+    AdminsUserGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        UserPoolId: !Ref UserPool
+        GroupName: Admin
+        Description: The users of this group access all features
