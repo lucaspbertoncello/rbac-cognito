@@ -1,21 +1,11 @@
 import { APIGatewayProxyEventV2WithJWTAuthorizer } from "aws-lambda";
 import { response } from "../../utils/response";
-import { AdminGetUserCommand } from "@aws-sdk/client-cognito-identity-provider";
-import { env } from "../../config/env";
-import { cognitoClient } from "../../lib/cognitoClient";
+import { formatCognitoRoles } from "../../utils/formatCognitoRoles";
+import { checkRoles } from "../../utils/checkRoles";
 
-export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
-  const userId = event.requestContext.authorizer.jwt.claims.sub as string;
-
-  const command = new AdminGetUserCommand({
-    Username: userId,
-    UserPoolId: env.COGNITO_POOL_ID,
-  });
-
-  const { UserAttributes } = await cognitoClient.send(command);
-
-  return response({
-    statusCode: 201,
-    body: { UserAttributes },
-  });
-}
+export const handler = checkRoles({
+  role: "admin",
+  callbackFn: async (event: APIGatewayProxyEventV2WithJWTAuthorizer) => {
+    return response({ statusCode: 201, body: { message: "passou" } });
+  },
+});

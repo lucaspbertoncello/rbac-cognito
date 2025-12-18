@@ -18,7 +18,6 @@ iam:
     statements:
       - Effect: Allow
         Action:
-          - cognito-idp:AdminGetUser
           - cognito-idp:CreateGroup
           - cognito-idp:ListGroups
           - cognito-idp:DeleteGroup
