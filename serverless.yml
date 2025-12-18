@@ -28,6 +28,7 @@ provider:
             - cognito-idp:DeleteGroup
             - cognito-idp:UpdateGroup
             - cognito-idp:AdminAddUserToGroup
+            - cognito-idp:ListUsersInGroup
           Resource: !GetAtt UserPool.Arn
 
 package:
@@ -104,6 +105,14 @@ functions:
       - httpApi:
           path: /roles/{roleName}
           method: POST
+          authorizer:
+            name: CognitoAuthorizer
+  listRoleUsers:
+    handler: src/functions/roles/listRoleUsers.handler
+    events:
+      - httpApi:
+          path: /roles/{roleName}
+          method: GET
           authorizer:
             name: CognitoAuthorizer
 
