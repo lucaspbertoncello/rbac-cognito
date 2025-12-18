@@ -1,13 +1,13 @@
 import { APIGatewayProxyEventV2WithJWTAuthorizer } from "aws-lambda";
 import { response } from "../../utils/response";
-import { UpdateGroupCommand } from "@aws-sdk/client-cognito-identity-provider";
-import { env } from "../../config/env";
-import { cognitoClient } from "../../lib/cognitoClient";
 import z from "zod";
 import { schemaValidator } from "../../utils/schemaValidator";
+import { AdminAddUserToGroupCommand } from "@aws-sdk/client-cognito-identity-provider";
+import { env } from "../../config/env";
+import { cognitoClient } from "../../lib/cognitoClient";
 
 const schema = z.object({
-  description: z.string(),
+  userEmail: z.email(),
 });
 
 export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
@@ -17,13 +17,15 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
     return response({ statusCode: 400, body: { error } });
   }
 
-  const command = new UpdateGroupCommand({
+  const command = new AdminAddUserToGroupCommand({
     UserPoolId: env.COGNITO_POOL_ID,
     GroupName: event.pathParameters?.roleName,
-    Description: data.description,
+    Username: data.userEmail,
   });
 
   await cognitoClient.send(command);
 
-  return response({ statusCode: 200 });
+  return response({
+    statusCode: 201,
+  });
 }
