@@ -26,6 +26,7 @@ provider:
             - cognito-idp:CreateGroup
             - cognito-idp:ListGroups
             - cognito-idp:DeleteGroup
+            - cognito-idp:UpdateGroup
           Resource: !GetAtt UserPool.Arn
 
 package:
@@ -86,6 +87,14 @@ functions:
       - httpApi:
           path: /roles/{roleName}
           method: DELETE
+          authorizer:
+            name: CognitoAuthorizer
+  updateRole:
+    handler: src/functions/roles/updateRole.handler
+    events:
+      - httpApi:
+          path: /roles/{roleName}
+          method: PUT
           authorizer:
             name: CognitoAuthorizer
 
