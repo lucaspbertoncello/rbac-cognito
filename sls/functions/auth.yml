@@ -1,0 +1,18 @@
+signup:
+  handler: src/functions/auth/signup.handler
+  events:
+    - httpApi:
+        path: /auth/signup
+        method: POST
+confirmSignup:
+  handler: src/functions/auth/confirmSignup.handler
+  events:
+    - httpApi:
+        path: /auth/confirm-signup
+        method: POST
+signin:
+  handler: src/functions/auth/signin.handler
+  events:
+    - httpApi:
+        path: /auth/signin
+        method: POST

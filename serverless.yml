@@ -1,165 +1,17 @@
 org: moullxndev
 service: rbac-cognito
 
-provider:
-  name: aws
-  runtime: nodejs22.x
-  architecture: arm64
-  region: us-east-1
-  environment:
-    COGNITO_CLIENT_ID: !Ref UserPoolClient
-    COGNITO_POOL_ID: !Ref UserPool
-  httpApi:
-    authorizers:
-      CognitoAuthorizer:
-        type: jwt
-        identitySource: $request.header.Authorization
-        issuerUrl: !GetAtt UserPool.ProviderURL
-        audience:
-          - !Ref UserPoolClient
-  iam:
-    role:
-      statements:
-        - Effect: Allow
-          Action:
-            - cognito-idp:AdminGetUser
-            - cognito-idp:CreateGroup
-            - cognito-idp:ListGroups
-            - cognito-idp:DeleteGroup
-            - cognito-idp:UpdateGroup
-            - cognito-idp:AdminAddUserToGroup
-            - cognito-idp:ListUsersInGroup
-            - cognito-idp:ListUsersInGroup
-            - cognito-idp:AdminRemoveUserFromGroup
-          Resource: !GetAtt UserPool.Arn
+provider: ${file(./sls/provider.yml)}
 
 package:
   individually: true
 
-build:
-  esbuild:
-    minify: true
-    bundle: true
-    sourcemap: false
+build: ${file(./sls/esbuild.yml)}
 
 functions:
-  signup:
-    handler: src/functions/auth/signup.handler
-    events:
-      - httpApi:
-          path: /auth/signup
-          method: POST
-  confirmSignup:
-    handler: src/functions/auth/confirmSignup.handler
-    events:
-      - httpApi:
-          path: /auth/confirm-signup
-          method: POST
-  signin:
-    handler: src/functions/auth/signin.handler
-    events:
-      - httpApi:
-          path: /auth/signin
-          method: POST
-  createLesson:
-    handler: src/functions/lessons/createLesson.handler
-    events:
-      - httpApi:
-          path: /lessons
-          method: POST
-          authorizer:
-            name: CognitoAuthorizer
-  createRole:
-    handler: src/functions/roles/createRole.handler
-    events:
-      - httpApi:
-          path: /roles
-          method: POST
-          authorizer:
-            name: CognitoAuthorizer
-  listRoles:
-    handler: src/functions/roles/listRoles.handler
-    events:
-      - httpApi:
-          path: /roles
-          method: GET
-          authorizer:
-            name: CognitoAuthorizer
-  deleteRole:
-    handler: src/functions/roles/deleteRole.handler
-    events:
-      - httpApi:
-          path: /roles/{roleName}
-          method: DELETE
-          authorizer:
-            name: CognitoAuthorizer
-  updateRole:
-    handler: src/functions/roles/updateRole.handler
-    events:
-      - httpApi:
-          path: /roles/{roleName}
-          method: PUT
-          authorizer:
-            name: CognitoAuthorizer
-  addRoleToUser:
-    handler: src/functions/roles/addRoleToUser.handler
-    events:
-      - httpApi:
-          path: /roles/{roleName}
-          method: POST
-          authorizer:
-            name: CognitoAuthorizer
-  listRoleUsers:
-    handler: src/functions/roles/listRoleUsers.handler
-    events:
-      - httpApi:
-          path: /roles/{roleName}/users
-          method: GET
-          authorizer:
-            name: CognitoAuthorizer
-  deleteRoleUsers:
-    handler: src/functions/roles/deleteRoleUsers.handler
-    events:
-      - httpApi:
-          path: /roles/{roleName}/users/{userEmail}
-          method: DELETE
-          authorizer:
-            name: CognitoAuthorizer
+  - ${file(./sls/functions/auth.yml)}
+  - ${file(./sls/functions/lessons.yml)}
+  - ${file(./sls/functions/roles.yml)}
 
 resources:
-  Resources:
-    UserPool:
-      Type: AWS::Cognito::UserPool
-      Properties:
-        UserPoolName: rbac-cognito
-        AdminCreateUserConfig:
-          AllowAdminCreateUserOnly: false
-        MfaConfiguration: OFF
-        UsernameAttributes:
-          - email
-        AutoVerifiedAttributes:
-          - email
-        Schema:
-          - Name: email
-            Required: true
-            Mutable: true
-          - Name: given_name
-            Required: true
-            Mutable: true
-          - Name: role
-            Mutable: true
-            AttributeDataType: String
-    UserPoolClient:
-      Type: AWS::Cognito::UserPoolClient
-      Properties:
-        ClientName: UserPoolClient
-        UserPoolId: !Ref UserPool
-        ExplicitAuthFlows:
-          - ALLOW_USER_PASSWORD_AUTH
-          - ALLOW_REFRESH_TOKEN_AUTH
-    AdminsUserGroup:
-      Type: AWS::Cognito::UserPoolGroup
-      Properties:
-        UserPoolId: !Ref UserPool
-        GroupName: Admin
-        Description: The users of this group access all features
+  - ${file(./sls/resources/cognito.yml)}

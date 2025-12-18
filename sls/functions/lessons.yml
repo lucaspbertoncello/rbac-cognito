@@ -1,0 +1,8 @@
+createLesson:
+  handler: src/functions/lessons/createLesson.handler
+  events:
+    - httpApi:
+        path: /lessons
+        method: POST
+        authorizer:
+          name: CognitoAuthorizer
