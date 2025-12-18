@@ -1,5 +1,5 @@
 {
-  "name": "rbac-cognito",
+  "name": "rbac-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -24,3 +24,4 @@
     "zod": "^4.2.1"
   }
 }
+

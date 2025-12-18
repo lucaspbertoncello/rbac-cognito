@@ -12,6 +12,7 @@ functions:
   - ${file(./sls/functions/auth.yml)}
   - ${file(./sls/functions/lessons.yml)}
   - ${file(./sls/functions/roles.yml)}
+  - ${file(./sls/functions/users.yml)}
 
 resources:
   - ${file(./sls/resources/cognito.yml)}
